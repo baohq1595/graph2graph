@@ -14,5 +14,5 @@ with open(args.target) as f:
 target = set(target)
 
 x = len(preds & target)
-print len(preds), len(target), x
-print 1 - x * 1.0 / len(target)
+print(len(preds), len(target), x)
+print(1 - x * 1.0 / len(target))

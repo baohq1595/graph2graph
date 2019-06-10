@@ -14,7 +14,7 @@ assert len(data) % args.num_decode == 0
 
 all_logp = []
 
-for i in xrange(0, len(data), args.num_decode):
+for i in range(0, len(data), args.num_decode):
     set_x = set([x[0] for x in data[i:i+args.num_decode]])
     assert len(set_x) == 1
 
@@ -28,5 +28,5 @@ for i in xrange(0, len(data), args.num_decode):
 assert len(all_logp) == n_mols
 all_logp = np.array(all_logp)
 
-print 'Evaluated on %d samples' % (n_mols,)
-print 'average improvement', np.mean(all_logp), 'stdev',  np.std(all_logp)
+print('Evaluated on %d samples' % (n_mols,))
+print('average improvement', np.mean(all_logp), 'stdev',  np.std(all_logp))

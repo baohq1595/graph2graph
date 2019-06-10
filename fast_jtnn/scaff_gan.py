@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.autograd as autograd
-from mol_tree import Vocab, MolTree
-from nnutils import create_var, avg_pool, index_select_ND, GRU
-from jtnn_enc import JTNNEncoder
+from fast_jtnn.mol_tree import Vocab, MolTree
+from fast_jtnn.nnutils import create_var, avg_pool, index_select_ND, GRU
+from fast_jtnn.jtnn_enc import JTNNEncoder
 
 class ScaffoldGAN(nn.Module):
 
@@ -40,7 +40,7 @@ class ScaffoldGAN(nn.Module):
         
         #Generate fake root features
         pred_root_vecs = []
-        for i in xrange(len(z_batch)):
+        for i in range(len(z_batch)):
             root_vec,_ = jtnn.decoder.soft_decode(
                     z_tree_vecs_noised[i].unsqueeze(0), z_mol_vecs_noised[i].unsqueeze(0),
                     gumbel=self.gumbel, slope=1.0, temp=1.0
@@ -115,7 +115,7 @@ class Generator(nn.Module):
         mask[0] = 0 #first vector is padding
         mask = create_var(mask)
 
-        for it in xrange(depth):
+        for it in range(depth):
             h_nei = index_select_ND(h, 0, mess_graph)
             h = GRU(x, h_nei, self.W_z, self.W_r, self.U_r, self.W_h)
             h = h * mask

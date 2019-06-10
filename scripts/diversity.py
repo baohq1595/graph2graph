@@ -17,7 +17,7 @@ def convert(x):
 
 all_div = []
 n_succ = 0
-for i in xrange(0, len(data), args.num_decode):
+for i in range(0, len(data), args.num_decode):
     set_x = set([x[0] for x in data[i:i+args.num_decode]])
     assert len(set_x) == 1
 
@@ -33,13 +33,13 @@ for i in xrange(0, len(data), args.num_decode):
     
     div = 0.0
     tot = 0
-    for i in xrange(len(good)):
-        for j in xrange(i + 1, len(good)):
+    for i in range(len(good)):
+        for j in range(i + 1, len(good)):
             div += 1 - similarity(good[i], good[j])
             tot += 1
     div /= tot
     all_div.append(div)
 
 all_div = np.array(all_div)
-print np.mean(all_div), np.std(all_div)
-print n_succ
+print(np.mean(all_div), np.std(all_div))
+print(n_succ)

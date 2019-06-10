@@ -13,7 +13,7 @@ n_mols = len(data) / args.num_decode
 assert len(data) % args.num_decode == 0
 
 n_succ = 0.0
-for i in xrange(0, len(data), args.num_decode):
+for i in range(0, len(data), args.num_decode):
     set_x = set([x[0] for x in data[i:i+args.num_decode]])
     assert len(set_x) == 1
 
@@ -21,5 +21,5 @@ for i in xrange(0, len(data), args.num_decode):
     if len(good) > 0:
         n_succ += 1
 
-print 'Evaluated on %d samples' % (n_mols,)
-print 'success rate', n_succ / n_mols
+print('Evaluated on %d samples' % (n_mols,))
+print('success rate', n_succ / n_mols)

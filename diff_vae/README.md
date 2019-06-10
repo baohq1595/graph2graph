@@ -49,7 +49,7 @@ bash val_scripts/valid_logp04.sh models/logp04 10
 ## Testing
 After finishing cross-validation, you can test the chosen model on the logp04 task by running
 ```
-python decode.py --test ../data/logp04/test.txt --vocab ../data/logp04/vocab.txt --model models/logp04/model.iter-5 | python ../scripts/logp_score > results.logp04
+python decode.py --test ../data/logp04/test.txt --vocab ../data/logp04/vocab.txt --model models/logp04/model.iter-5 --share_embedding| python ../scripts/logp_score > results.logp04
 python logp_analyze.py --delta 0.4 < results.logp04
 ```
 You can test our models on all four tasks by running

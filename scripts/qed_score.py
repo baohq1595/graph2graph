@@ -6,6 +6,6 @@ for line in sys.stdin:
     if y == "None": y = None
     sim2D = similarity(x, y)
     try:
-        print x, y, sim2D, qed(y)
+        print(x, y, sim2D, qed(y))
     except Exception as e:
-        print x, y, sim2D, 0.0
+        print(x, y, sim2D, 0.0)

@@ -9,7 +9,7 @@ import math, random, sys
 import numpy as np
 import argparse
 from collections import deque
-import cPickle as pickle
+import pickle
 
 from fast_jtnn import *
 import rdkit
@@ -27,7 +27,7 @@ parser.add_argument('--rand_size', type=int, default=8)
 parser.add_argument('--depthT', type=int, default=6)
 parser.add_argument('--depthG', type=int, default=3)
 parser.add_argument('--share_embedding', action='store_true')
-parser.add_argument('--use_molatt', action='store_true')
+parser.add_argument('--use_molatt', default=True)
 
 parser.add_argument('--num_decode', type=int, default=20)
 parser.add_argument('--seed', type=int, default=3)
@@ -44,7 +44,7 @@ with open(args.test) as f:
     data = [line.split()[0] for line in f]
 
 data = [MolTree(s) for s in data]
-batches = [data[i : i + 1] for i in xrange(0, len(data))]
+batches = [data[i : i + 1] for i in range(0, len(data))]
 dataset = MolTreeDataset(batches, vocab, assm=False)
 loader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=0, collate_fn=lambda x:x[0])
 
@@ -54,8 +54,8 @@ for batch in loader:
     x_tree_vecs, _, x_mol_vecs = model.encode(batch[1], batch[2])
     assert x_tree_vecs.size(0) == x_mol_vecs.size(0)
 
-    for k in xrange(args.num_decode):
+    for k in range(args.num_decode):
         z_tree_vecs, z_mol_vecs = model.fuse_noise(x_tree_vecs, x_mol_vecs)
         smiles = mol_batch[0].smiles
         new_smiles = model.decode(z_tree_vecs[0].unsqueeze(0), z_mol_vecs[0].unsqueeze(0))
-        print smiles, new_smiles
+        print(smiles, new_smiles)

@@ -29,7 +29,7 @@ bash val_scripts/valid_qed.sh models/qed 10
 ## Testing
 After finishing cross-validation, you can test the chosen model on the logp04 task by running
 ```
-python decode.py --test ../data/qed/test.txt --vocab ../data/qed/vocab.txt --model models/qed/model.iter-3 | python ../scripts/qed_score > results.qed
+python decode.py --test ../data/qed/test.txt --vocab ../data/qed/vocab.txt --model models/qed/model.iter-3 --use_molatt 1 | python ../scripts/qed_score > results.qed
 python qed_analyze.py < results.qed
 ```
 You can test our models on all four tasks by running

@@ -9,7 +9,7 @@ import math, random, sys
 import numpy as np
 import argparse
 from collections import deque
-import cPickle as pickle
+import pickle
 
 from fast_jtnn import *
 import rdkit
@@ -38,7 +38,7 @@ parser.add_argument('--anneal_rate', type=float, default=0.9)
 parser.add_argument('--lr', type=float, default=1e-3)
 
 args = parser.parse_args()
-print args
+print(args)
   
 vocab = [x.strip("\r\n ") for x in open(args.vocab)] 
 vocab = Vocab(vocab)
@@ -54,7 +54,7 @@ for param in model.parameters():
 if args.load_epoch >= 0:
     model.load_state_dict(torch.load(args.save_dir + "/model.iter-" + str(args.load_epoch)))
 
-print "Model #Params: %dK" % (sum([x.nelement() for x in model.parameters()]) / 1000,)
+print("Model #Params: %dK" % (sum([x.nelement() for x in model.parameters()]) / 1000,))
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 scheduler = lr_scheduler.ExponentialLR(optimizer, args.anneal_rate)
@@ -64,7 +64,7 @@ PRINT_ITER = 20
 param_norm = lambda m: math.sqrt(sum([p.norm().item() ** 2 for p in m.parameters()]))
 grad_norm = lambda m: math.sqrt(sum([p.grad.norm().item() ** 2 for p in m.parameters() if p.grad is not None]))
 
-for epoch in xrange(args.load_epoch + 1, args.epoch):
+for epoch in range(args.load_epoch + 1, args.epoch):
     loader = PairTreeFolder(args.train, vocab, args.batch_size, num_workers=4)
     meters = np.zeros(4)
 
@@ -75,7 +75,7 @@ for epoch in xrange(args.load_epoch + 1, args.epoch):
             loss, kl_div, wacc, tacc, sacc = model(x_batch, y_batch, args.beta)
             loss.backward()
         except Exception as e:
-            print e
+            print(e)
             continue
 
         nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
@@ -85,13 +85,13 @@ for epoch in xrange(args.load_epoch + 1, args.epoch):
 
         if (it + 1) % PRINT_ITER == 0:
             meters /= PRINT_ITER
-            print "KL: %.2f, Word: %.2f, Topo: %.2f, Assm: %.2f, PNorm: %.2f, GNorm: %.2f" % (meters[0], meters[1], meters[2], meters[3], param_norm(model), grad_norm(model))
+            print("KL: %.2f, Word: %.2f, Topo: %.2f, Assm: %.2f, PNorm: %.2f, GNorm: %.2f" % (meters[0], meters[1], meters[2], meters[3], param_norm(model), grad_norm(model)))
             sys.stdout.flush()
             meters *= 0
 
     scheduler.step()
 
-    print "learning rate: %.6f" % scheduler.get_lr()[0]
+    print("learning rate: %.6f" % scheduler.get_lr()[0])
     if args.save_dir is not None:
         torch.save(model.state_dict(), args.save_dir + "/model.iter-" + str(epoch))
 

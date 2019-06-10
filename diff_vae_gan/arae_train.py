@@ -9,7 +9,7 @@ import math, random, sys
 import numpy as np
 import argparse
 from collections import deque
-import cPickle as pickle
+import as pickle
 
 from fast_jtnn import *
 import rdkit
@@ -47,7 +47,7 @@ parser.add_argument('--epoch', type=int, default=20)
 parser.add_argument('--anneal_rate', type=float, default=0.9)
   
 args = parser.parse_args()
-print args
+print(args)
 
 vocab = [x.strip("\r\n ") for x in open(args.vocab)] 
 vocab = Vocab(vocab)
@@ -72,8 +72,8 @@ else:
         else:
             nn.init.xavier_normal_(param)
 
-print "Model #Params: %dK" % (sum([x.nelement() for x in model.parameters()]) / 1000,)
-print "GAN #Params: %dK" % (sum([x.nelement() for x in GAN.parameters()]) / 1000,)
+print("Model #Params: %dK" % (sum([x.nelement() for x in model.parameters()]) / 1000,))
+print("GAN #Params: %dK" % (sum([x.nelement() for x in GAN.parameters()]) / 1000,))
 
 optimizer = optim.Adam(model.parameters(), lr=args.lr)
 optimizerG = optim.Adam(model.parameters(), lr=args.gan_lrG, betas=(0, 0.9)) #generator is model parameter!
@@ -94,7 +94,7 @@ x_loader = iter(x_loader)
 y_loader = MolTreeFolder(args.ymols, vocab, args.gan_batch_size, num_workers=4, assm=False, replicate=num_epoch)
 y_loader = iter(y_loader)
 
-for epoch in xrange(args.load_epoch + 1, args.epoch):
+for epoch in range(args.load_epoch + 1, args.epoch):
     meters = np.zeros(7)
     main_loader = PairTreeFolder(args.train, vocab, args.batch_size, num_workers=4)
 
@@ -106,13 +106,13 @@ for epoch in xrange(args.load_epoch + 1, args.epoch):
             loss, kl_div, wacc, tacc, sacc = model(x_batch, y_batch, args.kl_lambda)
             loss.backward()
         except Exception as e:
-            print e
+            print(e)
             continue
         nn.utils.clip_grad_norm_(model.parameters(), args.clip_norm)
         optimizer.step()
 
         #2. Train discriminator
-        for i in xrange(args.diter):
+        for i in range(args.diter):
             GAN.netD.zero_grad()
             x_batch, _ = next(x_loader)
             y_batch = next(y_loader)
@@ -132,13 +132,13 @@ for epoch in xrange(args.load_epoch + 1, args.epoch):
 
         if (it + 1) % PRINT_ITER == 0:
             meters /= PRINT_ITER
-            print "KL: %.2f, Word: %.2f, Topo: %.2f, Assm: %.2f, Disc: %.4f, Gen: %.4f, GP: %.4f, PNorm: %.2f, %.2f, GNorm: %.2f, %.2f" % (meters[0], meters[1], meters[2], meters[3], meters[4], meters[5], meters[6], param_norm(model), param_norm(GAN.netD), grad_norm(model), grad_norm(GAN.netD))
+            print("KL: %.2f, Word: %.2f, Topo: %.2f, Assm: %.2f, Disc: %.4f, Gen: %.4f, GP: %.4f, PNorm: %.2f, %.2f, GNorm: %.2f, %.2f" % (meters[0], meters[1], meters[2], meters[3], meters[4], meters[5], meters[6], param_norm(model), param_norm(GAN.netD), grad_norm(model), grad_norm(GAN.netD)))
             sys.stdout.flush()
             meters *= 0
 
     scheduler.step()
 
-    print "learning rate: %.6f" % scheduler.get_lr()[0]
+    print("learning rate: %.6f" % scheduler.get_lr()[0])
     if args.save_dir is not None:
         torch.save(model.state_dict(), args.save_dir + "/model.iter-" + str(epoch))
         torch.save(GAN.state_dict(), args.save_dir + "/gan.iter-" + str(epoch))

@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mol_tree import Vocab, MolTree
-from nnutils import create_var, flatten_tensor, avg_pool
-from jtnn_enc import JTNNEncoder
-from jtnn_dec import JTNNDecoder
-from mpn import MPN
-from jtmpn import JTMPN
+from fast_jtnn.mol_tree import Vocab, MolTree
+from fast_jtnn.nnutils import create_var, flatten_tensor, avg_pool
+from fast_jtnn.jtnn_enc import JTNNEncoder
+from fast_jtnn.jtnn_dec import JTNNDecoder
+from fast_jtnn.mpn import MPN
+from fast_jtnn.jtmpn import JTMPN
 
-from chemutils import enum_assemble, set_atommap, copy_edit_mol, attach_mols
+from fast_jtnn.chemutils import enum_assemble, set_atommap, copy_edit_mol, attach_mols
 import rdkit
 import rdkit.Chem as Chem
 import copy, math
@@ -35,12 +35,12 @@ class DiffVAE(nn.Module):
         self.A_assm = nn.Linear(hidden_size, hidden_size, bias=False)
         self.assm_loss = nn.CrossEntropyLoss(size_average=False)
 
-        self.T_mean = nn.Linear(hidden_size, rand_size / 2)
-        self.T_var = nn.Linear(hidden_size, rand_size / 2)
-        self.G_mean = nn.Linear(hidden_size, rand_size / 2)
-        self.G_var = nn.Linear(hidden_size, rand_size / 2)
-        self.B_t = nn.Sequential(nn.Linear(hidden_size + rand_size / 2, hidden_size), nn.ReLU())
-        self.B_g = nn.Sequential(nn.Linear(hidden_size + rand_size / 2, hidden_size), nn.ReLU())
+        self.T_mean = nn.Linear(hidden_size, rand_size // 2)
+        self.T_var = nn.Linear(hidden_size, rand_size // 2)
+        self.G_mean = nn.Linear(hidden_size, rand_size // 2)
+        self.G_var = nn.Linear(hidden_size, rand_size // 2)
+        self.B_t = nn.Sequential(nn.Linear(hidden_size + rand_size // 2, hidden_size), nn.ReLU())
+        self.B_g = nn.Sequential(nn.Linear(hidden_size + rand_size // 2, hidden_size), nn.ReLU())
             
     def encode(self, jtenc_holder, mpn_holder):
         tree_vecs, tree_mess = self.jtnn(*jtenc_holder)
@@ -48,9 +48,9 @@ class DiffVAE(nn.Module):
         return tree_vecs, tree_mess, mol_vecs
 
     def fuse_noise(self, tree_vecs, mol_vecs):
-        tree_eps = create_var( torch.randn(tree_vecs.size(0), 1, self.rand_size / 2) )
+        tree_eps = create_var( torch.randn(tree_vecs.size(0), 1, self.rand_size // 2) )
         tree_eps = tree_eps.expand(-1, tree_vecs.size(1), -1)
-        mol_eps = create_var( torch.randn(mol_vecs.size(0), 1, self.rand_size / 2) )
+        mol_eps = create_var( torch.randn(mol_vecs.size(0), 1, self.rand_size // 2) )
         mol_eps = mol_eps.expand(-1, mol_vecs.size(1), -1)
 
         tree_vecs = torch.cat([tree_vecs,tree_eps], dim=-1) 
@@ -195,8 +195,8 @@ class DiffVAE(nn.Module):
         _,cand_idx = torch.sort(scores, descending=True)
 
         backup_mol = Chem.RWMol(cur_mol)
-        #for i in xrange(cand_idx.numel()):
-        for i in xrange( min(cand_idx.numel(), 5) ):
+        #for i in range(cand_idx.numel()):
+        for i in range( min(cand_idx.numel(), 5) ):
             cur_mol = Chem.RWMol(backup_mol)
             pred_amap = cand_amap[cand_idx[i].item()]
             new_global_amap = copy.deepcopy(global_amap)
